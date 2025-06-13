@@ -1,51 +1,33 @@
 exports.config = {
-  user: process.env.BROWSERSTACK_USERNAME || 'BROWSERSTACK_USERNAME',
-  key: process.env.BROWSERSTACK_ACCESS_KEY || 'BROWSERSTACK_ACCESS_KEY',
-
-  services: [
-    [
-      'browserstack',
-      {
-        accessibility: false,
-        buildIdentifier: '${BUILD_NUMBER}',
-        browserstackLocal: true,
-        opts: { forcelocal: false, localIdentifier: "webdriverio-appium-app-browserstack-repo" },
-        app: process.env.BROWSERSTACK_APP_PATH || './examples/BStackSampleApp.ipa'
-      }
-    ]
-  ],
-
-  capabilities: [{
-    'bstack:options': {
-      deviceName: "iPhone 14",
-      osVersion: "16"
-    }
-  }, {
-    'bstack:options': {
-      deviceName: "iPhone 13 Pro Max",
-      osVersion: "15"
-    }
-  }],
-
-  commonCapabilities: {
-    'bstack:options': {
-      projectName: "BrowserStack Samples",
-      buildName: 'browserstack build',
-      sessionName: 'BStack parallel webdriverio-appium',
-      debug: true,
-      networkLogs: true,
-      source: 'webdriverio:appium-sample-sdk:v1.0'
-    }
-  },
-
-  maxInstances: 10,
+  user: process.env.BROWSERSTACK_USERNAME,
+  key: process.env.BROWSERSTACK_ACCESS_KEY,
 
   updateJob: false,
   specs: [
-    './specs/single_test.js'
+    './examples/run-parallel-test/specs/single_test.js'
   ],
   exclude: [],
 
+  maxInstances: 10,
+
+  commonCapabilities: {
+    project: "First WebdriverIO iOS Project",
+    build: 'Webdriverio iOS Parallel',
+    name: 'parallel_test',
+    app: process.env.BROWSERSTACK_APP_ID,  // no fallback here — fail fast if not set
+    'browserstack.debug': true
+  },
+
+  capabilities: [
+    {
+      device: "iPhone 11 Pro",
+      os_version: "13"
+    },
+    {
+      device: "iPhone 11 Pro Max",
+      os_version: "13"
+    }
+  ],
 
   logLevel: 'info',
   coloredLogs: true,
@@ -62,8 +44,9 @@ exports.config = {
   }
 };
 
-// Code to support common capabilities
-exports.config.capabilities.forEach(function(caps){
-  for(let key in exports.config.commonCapabilities)
-    caps[key] = { ...caps[key], ...exports.config.commonCapabilities[key]};
+// Merge common capabilities into each capability
+exports.config.capabilities.forEach(function (caps) {
+  for (var i in exports.config.commonCapabilities) {
+    caps[i] = caps[i] || exports.config.commonCapabilities[i];
+  }
 });
